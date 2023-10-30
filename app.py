@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import FileResponse
-import os
+import os,secrets
 
 app = FastAPI()
 
@@ -10,8 +10,10 @@ UPLOAD_DIR = "uploads"
 async def upload_file(file: UploadFile):
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
-    
+    # Generate a random filename using the 'secrets' module
+    random_filename = secrets.token_hex(16)  # You can adjust the length of the filename as needed
+
+    file_path = os.path.join(UPLOAD_DIR, random_filename)
     with open(file_path, 'wb') as f:
         while True:
             chunk = await file.read(65536)
@@ -25,4 +27,3 @@ async def upload_file(file: UploadFile):
 async def download_file(file_name: str):
     file_path = os.path.join(UPLOAD_DIR, file_name)
     return FileResponse(file_path, headers={"Content-Disposition": f"attachment; filename={file_name}"})
-
